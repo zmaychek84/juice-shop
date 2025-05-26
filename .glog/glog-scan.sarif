@@ -12,7 +12,7 @@
           "informationUri": "https://www.glog.ai",
           "rules": [
             {
-              "id": "glog-ff824e21-68cb-41e0-96db-7428db9f2041",
+              "id": "glog-20a07d6e-a680-42da-b5a5-b97efb5465ab",
               "help": {
                 "text": "",
                 "markdown": "### Description of \"Unsecured URL\" Vulnerability in JavaScript\n\nThe \"Unsecured URL\" vulnerability occurs when a JavaScript application uses HTTP URLs instead of HTTPS. This can lead to potential security risks such as man-in-the-middle attacks, where an attacker intercepts and possibly alters the communication between the client and server. This vulnerability is particularly concerning when sensitive data is being transmitted.\n\n### General Mitigation Advice\n\n1. **Use HTTPS**: Always use HTTPS URLs instead of HTTP to ensure that data is encrypted during transmission.\n2. **Content Security Policy (CSP)**: Implement CSP to restrict the sources from which content can be loaded.\n3. **Secure Cookies**: Use the `Secure` and `HttpOnly` flags for cookies to prevent them from being accessed via JavaScript or transmitted over non-secure connections.\n4. **HSTS**: Implement HTTP Strict Transport Security (HSTS) to enforce secure connections to the server.\n\n### Source Code Fix Recommendation\n\n**Vulnerable Code Example:**\n\n```javascript\n// Vulnerable: Using HTTP URL\nfetch('http://my.opera.com/api/data')\n  .then(response => response.json())\n  .then(data => console.log(data))\n  .catch(error => console.error('Error:', error));\n```\n\n**Fixed Code Example:**\n\n```javascript\n// Fixed: Using HTTPS URL\nfetch('https://my.opera.com/api/data')\n  .then(response => response.json())\n  .then(data => console.log(data))\n  .catch(error => console.error('Error:', error));\n```\n\n### Library Dependencies\n\nThe above code examples do not require any additional library dependencies to execute properly, as they use the native `fetch` API available in modern browsers.\n\n### Relevant OWASP Resources\n\n- [OWASP Secure Headers Project](https://owasp.org/www-project-secure-headers/)\n- [OWASP Transport Layer Protection Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Transport_Layer_Protection_Cheat_Sheet.html)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-319: Cleartext Transmission of Sensitive Information](https://cwe.mitre.org/data/definitions/319.html)"
@@ -24,7 +24,7 @@
               }
             },
             {
-              "id": "glog-d5548d35-823d-4892-b9dd-4f400735ac27",
+              "id": "glog-80eeb67a-b525-41f2-843a-f3a63f56c4ed",
               "help": {
                 "text": "",
                 "markdown": "### Description\n\nThe \"Unsecured URL\" vulnerability in JavaScript occurs when an application uses URLs that are not secured with HTTPS. This can lead to various security issues, such as man-in-the-middle attacks, where an attacker can intercept and potentially alter the data being transmitted. This vulnerability is particularly concerning when sensitive data is being transmitted over the network.\n\n### General Mitigation Advice\n\n1. **Use HTTPS**: Always use HTTPS URLs instead of HTTP to ensure that data is encrypted during transmission.\n2. **Content Security Policy (CSP)**: Implement a strong CSP to prevent the loading of insecure resources.\n3. **HSTS (HTTP Strict Transport Security)**: Enforce the use of HTTPS by implementing HSTS.\n4. **Secure Cookies**: Ensure cookies are marked as secure and are only transmitted over HTTPS.\n5. **Regular Audits**: Regularly audit your codebase to identify and replace any unsecured URLs.\n\n### Source Code Fix Recommendation\n\nIf your JavaScript code contains an unsecured URL, such as:\n\n```javascript\nfetch('http://paulirish.com')\n  .then(response => response.text())\n  .then(data => console.log(data))\n  .catch(error => console.error('Error:', error));\n```\n\nYou should update it to use HTTPS:\n\n```javascript\nfetch('https://paulirish.com')\n  .then(response => response.text())\n  .then(data => console.log(data))\n  .catch(error => console.error('Error:', error));\n```\n\n### Library Dependencies\n\nThe above code example does not require any additional library dependencies to execute properly, as it uses the native `fetch` API available in modern browsers.\n\n### OWASP Resources\n\n- [OWASP Transport Layer Protection Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Transport_Layer_Protection_Cheat_Sheet.html)\n- [OWASP Secure Headers Project](https://owasp.org/www-project-secure-headers/)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-319: Cleartext Transmission of Sensitive Information](https://cwe.mitre.org/data/definitions/319.html)"
@@ -32,18 +32,6 @@
               "properties": {
                 "tags": [
                   "DS137138"
-                ]
-              }
-            },
-            {
-              "id": "glog-00d538c3-eb1f-4463-8067-b605e2048960",
-              "help": {
-                "text": "",
-                "markdown": "### Description\n\nThe \"Evaluate setTimeout Usage with Untrusted Data\" vulnerability arises when the `setTimeout` function is used with untrusted data, potentially allowing an attacker to execute arbitrary code. In JavaScript, `setTimeout` can execute a string of code, which can be dangerous if the string is constructed using untrusted input. This can lead to code injection attacks, where an attacker can execute malicious scripts in the context of the application.\n\n### General Mitigation Advice\n\n1. **Avoid Using Strings in `setTimeout`:** Always use function references instead of strings to avoid code execution vulnerabilities.\n2. **Validate and Sanitize Input:** Ensure that any data used in constructing the `setTimeout` call is properly validated and sanitized.\n3. **Use Strict Content Security Policy (CSP):** Implement a strict CSP to mitigate the risk of executing injected scripts.\n4. **Review and Audit Code:** Regularly review and audit your code to identify and fix potential security vulnerabilities.\n\n### Source Code Fix Recommendation\n\nFor the specific vulnerability sink:\n\n```javascript\n// Vulnerable code\nsetTimeout(function() { callback(currTime + timeToCall) }, timeToCall);\n\n// Fixed code\nsetTimeout(() => { callback(currTime + timeToCall) }, timeToCall);\n```\n\nIn the fixed code, we ensure that `setTimeout` is used with a function reference rather than a string, which mitigates the risk of code injection.\n\n### Library Dependencies\n\nThe provided code example does not require any external library dependencies to execute properly. It uses native JavaScript functions and constructs.\n\n### Relevant OWASP Resources\n\n- [OWASP Top Ten](https://owasp.org/www-project-top-ten/)\n\n### Common Weakness Enumeration (CWE)\n\n- [CWE-95: Improper Neutralization of Directives in Dynamically Evaluated Code ('Eval Injection')](https://cwe.mitre.org/data/definitions/95.html)\n- [CWE-20: Improper Input Validation](https://cwe.mitre.org/data/definitions/20.html)"
-              },
-              "properties": {
-                "tags": [
-                  "DS172411"
                 ]
               }
             }
@@ -59,7 +47,48 @@
       "language": "en-US",
       "results": [
         {
-          "ruleId": "glog-ff824e21-68cb-41e0-96db-7428db9f2041",
+          "ruleId": "glog-b1100357-fe36-4b3e-a2f5-40444d00501d",
+          "kind": "fail",
+          "level": "note",
+          "message": {
+            "text": "Review setTimeout for untrusted data"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "frontend/src/assets/private/three.js"
+                },
+                "region": {
+                  "startLine": 42,
+                  "startColumn": 17,
+                  "endLine": 42,
+                  "endColumn": 75,
+                  "charOffset": 1292,
+                  "charLength": 58,
+                  "snippet": {
+                    "text": "setTimeout( function() { callback( currTime + timeToCall )",
+                    "rendered": {
+                      "text": "setTimeout( function() { callback( currTime + timeToCall )",
+                      "markdown": "`setTimeout( function() { callback( currTime + timeToCall )`"
+                    }
+                  },
+                  "sourceLanguage": "javascript"
+                }
+              }
+            }
+          ],
+          "properties": {
+            "DevSkimSeverity": "ManualReview",
+            "DevSkimConfidence": "High",
+            "tags": [
+              "JavaScript.DangerousFunctionCall",
+              "TypeScript.DangerousFunctionCall"
+            ]
+          }
+        },
+        {
+          "ruleId": "glog-20a07d6e-a680-42da-b5a5-b97efb5465ab",
           "kind": "fail",
           "level": "warning",
           "message": {
@@ -124,7 +153,7 @@
           }
         },
         {
-          "ruleId": "glog-d5548d35-823d-4892-b9dd-4f400735ac27",
+          "ruleId": "glog-80eeb67a-b525-41f2-843a-f3a63f56c4ed",
           "kind": "fail",
           "level": "warning",
           "message": {
@@ -185,47 +214,6 @@
             "DevSkimConfidence": "High",
             "tags": [
               "ThreatModel.Integration.HTTP"
-            ]
-          }
-        },
-        {
-          "ruleId": "glog-00d538c3-eb1f-4463-8067-b605e2048960",
-          "kind": "fail",
-          "level": "note",
-          "message": {
-            "text": "Review setTimeout for untrusted data"
-          },
-          "locations": [
-            {
-              "physicalLocation": {
-                "artifactLocation": {
-                  "uri": "frontend/src/assets/private/three.js"
-                },
-                "region": {
-                  "startLine": 42,
-                  "startColumn": 17,
-                  "endLine": 42,
-                  "endColumn": 75,
-                  "charOffset": 1292,
-                  "charLength": 58,
-                  "snippet": {
-                    "text": "setTimeout( function() { callback( currTime + timeToCall )",
-                    "rendered": {
-                      "text": "setTimeout( function() { callback( currTime + timeToCall )",
-                      "markdown": "`setTimeout( function() { callback( currTime + timeToCall )`"
-                    }
-                  },
-                  "sourceLanguage": "javascript"
-                }
-              }
-            }
-          ],
-          "properties": {
-            "DevSkimSeverity": "ManualReview",
-            "DevSkimConfidence": "High",
-            "tags": [
-              "JavaScript.DangerousFunctionCall",
-              "TypeScript.DangerousFunctionCall"
             ]
           }
         }
