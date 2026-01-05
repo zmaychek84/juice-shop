@@ -10,7 +10,331 @@
           "version": "1.0.0",
           "semanticVersion": "1.0.0",
           "informationUri": "https://www.glog.ai",
-          "rules": [],
+          "rules": [
+            {
+              "id": "3f71d221-79e7-3e83-a67e-f4f0ff5c2ab9",
+              "name": "JWT Token Vulnerability Detected",
+              "helpUri": "https://www.glog.ai/",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nThe code snippet provided is storing a JSON Web Token (JWT) in the browser's local storage. This is a security vulnerability because local storage is accessible by any script running on the same domain, making it susceptible to Cross-Site Scripting (XSS) attacks. If an attacker can run a script on the domain, they can retrieve the JWT and use it to impersonate the user.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, you should avoid storing sensitive information, such as JWTs, in local storage. Instead, consider using HTTP-only cookies to store JWTs. HTTP-only cookies are not accessible via JavaScript, which makes them immune to XSS attacks.\n\n## Source Code Fix Recommendation\n\nInstead of using `localStorage.setItem()`, you can set the JWT as an HTTP-only cookie on the server-side. Here's an example using the `express` and `cookie-parser` libraries in Node.js:\n\n```javascript\nconst express = require('express');\nconst cookieParser = require('cookie-parser');\n\nconst app = express();\napp.use(cookieParser());\n\napp.get('/login', (req, res) => {\n  // Authenticate user and generate JWT...\n  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';\n\n  res.cookie('token', token, { httpOnly: true });\n  res.send('Logged in!');\n});\n\napp.listen(3000);\n```\n\n## Library Dependencies\n\nThe code example requires the following libraries:\n\n- `express`: A web application framework for Node.js.\n- `cookie-parser`: Middleware for parsing cookies in Express apps.\n\n## References\n\n- [OWASP JWT Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html)\n- [OWASP XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)\n- [CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')](https://cwe.mitre.org/data/definitions/79.html)\n- [CWE-352: Cross-Site Request Forgery (CSRF)](https://cwe.mitre.org/data/definitions/352.html)"
+              },
+              "properties": {
+                "cwe": [
+                  {
+                    "id": "CWE-79",
+                    "url": "https://cwe.mitre.org/data/definitions/79.html"
+                  },
+                  {
+                    "id": "CWE-352",
+                    "url": "https://cwe.mitre.org/data/definitions/352.html"
+                  }
+                ],
+                "severity": "MEDIUM",
+                "kind": "FAIL",
+                "tags": [
+                  "CWE-79",
+                  "CWE-352"
+                ]
+              }
+            },
+            {
+              "id": "f2c2347c-a7d6-31b5-ae95-d439b71af101",
+              "name": "Non-Literal Argument Vulnerability in Require Function",
+              "helpUri": "https://www.glog.ai/",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nThe \"Non-Literal Argument Vulnerability in Require Function\" is a type of vulnerability in JavaScript that occurs when the argument to a `require()` function is not a string literal, but a variable or a function call. This can lead to a potential security risk as it allows an attacker to load and execute arbitrary code or modules in the application.\n\nIn the provided code, the `require()` function is using a non-literal argument to load a module. The argument is a string template that includes a function call to `utils.extractFilename()`. This function extracts a filename from the application's configuration, which could potentially be manipulated by an attacker.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, you should avoid using non-literal arguments in `require()` function calls. Instead, use string literals to specify the module to be loaded. If dynamic module loading is necessary, ensure that the input is properly validated and sanitized to prevent an attacker from loading arbitrary modules.\n\n## Source Code Fix Recommendation\n\nHere is a recommended fix for the provided code:\n\n```javascript\nconst filename = utils.extractFilename(config.get('application.chatBot.trainingData'));\nif (allowedFiles.includes(filename)) {\n  const trainingData = require(`data/chatbot/${filename}`);\n}\n```\n\nIn this fix, we first extract the filename and then check if it is in a list of allowed files before loading it with `require()`. This ensures that only expected modules can be loaded.\n\n## Library Dependencies\n\nThe provided code requires the following library dependencies:\n\n- A module loader, such as Node.js, to provide the `require()` function.\n- A utility library, represented by `utils`, to provide the `extractFilename()` function.\n- A configuration library, represented by `config`, to provide the `get()` function.\n\n## References\n\n- [OWASP Top 10 - A1 Injection](https://owasp.org/www-project-top-ten/2017/A1_2017-Injection)\n- [CWE-94: Improper Control of Generation of Code ('Code Injection')](https://cwe.mitre.org/data/definitions/94.html)"
+              },
+              "properties": {
+                "cwe": [
+                  {
+                    "id": "CWE-94",
+                    "url": "https://cwe.mitre.org/data/definitions/94.html"
+                  }
+                ],
+                "severity": "MEDIUM",
+                "kind": "FAIL",
+                "tags": [
+                  "CWE-94"
+                ]
+              }
+            },
+            {
+              "id": "3d4f7601-d5d2-318d-a0df-b4ccc6a52725",
+              "name": "\"MD5 Hash Vulnerability: Use Stronger Hashing Function\"",
+              "helpUri": "https://www.glog.ai/",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nMD5 is a widely used cryptographic hash function that produces a 128-bit (16-byte) hash value. It is commonly used to verify data integrity. However, MD5 is not collision-resistant; as of 2018, an attack against MD5 takes less than a second on a regular computer. This vulnerability can be exploited by an attacker to create different inputs that, when hashed, produce the same hash output. This is known as a hash collision. This can lead to serious security issues, such as password cracking, data integrity issues, and other forms of data manipulation.\n\n## Mitigation\n\nTo mitigate this vulnerability, it is recommended to use a stronger hashing function such as SHA-256 or SHA-3. These hashing functions are currently considered secure and collision-resistant.\n\n## Code Fix\n\nReplace the MD5 hashing function with a stronger hashing function. Here is an example of how to use the SHA-256 hashing function in Node.js:\n\n```javascript\nconst crypto = require('crypto');\nconst hash = crypto.createHash('sha256');\n\nhash.update('Some data to hash');\nconsole.log(hash.digest('hex'));\n```\n\n## Library Dependencies\n\nThe code example requires the `crypto` library, which is a built-in module in Node.js, so no additional installation is necessary.\n\n## References\n\n- [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html)\n- [CWE-327: Use of a Broken or Risky Cryptographic Algorithm](https://cwe.mitre.org/data/definitions/327.html)"
+              },
+              "properties": {
+                "cwe": [
+                  {
+                    "id": "CWE-327",
+                    "url": "https://cwe.mitre.org/data/definitions/327.html"
+                  }
+                ],
+                "severity": "MEDIUM",
+                "kind": "FAIL",
+                "tags": [
+                  "CWE-327"
+                ]
+              }
+            },
+            {
+              "id": "abd1dfc2-16a3-37c0-97b7-13ba6df726d0",
+              "name": "JWT Token Vulnerability Detected",
+              "helpUri": "https://www.glog.ai/",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nThe vulnerability in question is related to the insecure storage of JSON Web Tokens (JWT) in the local storage of a web browser. JWTs are often used to store user session information and can contain sensitive data. Storing them in local storage can expose them to Cross-Site Scripting (XSS) attacks, where an attacker can inject malicious scripts into a web page to steal these tokens.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, it is recommended to store JWTs in HTTP-only cookies. This makes them inaccessible to JavaScript and thus safe from XSS attacks. Additionally, it is also recommended to set the Secure flag for cookies to ensure they are only sent over HTTPS connections.\n\n## Source Code Fix Recommendation\n\nInstead of using `localStorage.setItem()`, use `httpOnly` cookies to store the JWT. Here is an example of how to set an `httpOnly` cookie in Express.js:\n\n```javascript\nconst express = require('express');\nconst cookieParser = require('cookie-parser');\n\nconst app = express();\napp.use(cookieParser());\n\napp.get('/login', (req, res) => {\n  // ... authentication logic ...\n\n  // Set JWT as an HTTP-only and Secure cookie\n  res.cookie('token', 'your.jwt.here', { httpOnly: true, secure: true });\n});\n```\n\n## Library Dependencies\n\nThe code example requires the following libraries:\n\n- `express`: A web application framework for Node.js.\n- `cookie-parser`: Middleware for parsing cookies in Express.js.\n\n## References\n\n- [OWASP JWT Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html)\n- [CWE-352: Cross-Site Request Forgery (CSRF)](https://cwe.mitre.org/data/definitions/352.html)\n- [CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')](https://cwe.mitre.org/data/definitions/79.html)"
+              },
+              "properties": {
+                "cwe": [
+                  {
+                    "id": "CWE-352",
+                    "url": "https://cwe.mitre.org/data/definitions/352.html"
+                  },
+                  {
+                    "id": "CWE-79",
+                    "url": "https://cwe.mitre.org/data/definitions/79.html"
+                  }
+                ],
+                "severity": "MEDIUM",
+                "kind": "FAIL",
+                "tags": [
+                  "CWE-352",
+                  "CWE-79"
+                ]
+              }
+            },
+            {
+              "id": "3f47bd87-992c-36f7-b7af-2beb2913a6d6",
+              "name": "\"XSS Vulnerabilities from User-Controlled Data in Methods like `innerHTML`, `outerHTML`, or `document.write`\"",
+              "helpUri": "https://www.glog.ai/",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nThe code snippet provided is vulnerable to Cross-Site Scripting (XSS) attacks. This is due to the use of `innerHTML` method which is used to manipulate the DOM. The `innerHTML` method can execute JavaScript code, making it a potential target for XSS attacks. If an attacker can control the input that is being passed to `innerHTML`, they can inject malicious scripts that will be executed when the page is rendered.\n\n## Mitigation\n\nTo mitigate this vulnerability, you should avoid using methods like `innerHTML`, `outerHTML`, or `document.write` that can execute JavaScript code. Instead, use methods that create text nodes rather than HTML nodes, such as `document.createTextNode` or `element.textContent`.\n\n## Source Code Fix\n\nHere is a recommended fix for the provided code:\n\n```javascript\ndat.controllers.OptionController=function(e,a,b){\n    var d=function(f,c,e){\n        d.superclass.call(this,f,c);\n        var k=this;\n        this.__select=document.createElement(\"select\");\n        if(b.isArray(e)){\n            var l={};\n            b.each(e,function(a){\n                l[a]=a\n            });\n            e=l\n        }\n        b.each(e,function(a,c){\n            var d=document.createElement(\"option\");\n            d.textContent=c; // Use textContent instead of innerHTML\n            d.setAttribute(\"value\",a);\n            k.__select.appendChild(d)\n        });\n        this.updateDisplay();\n        a.bind(this.__select,\"change\",function(){\n            k.setValue(this.options[this.selectedIndex].value)\n        });\n        this.domElement.appendChild(this.__select)\n    };\n};\n```\n\n## Library Dependencies\n\nThe code seems to be using a custom library `dat.controllers` and possibly jQuery or a similar library for the `bind` and `each` methods. However, without more context, it's hard to say exactly which libraries are required.\n\n## References\n\n- [OWASP XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)\n- [CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')](https://cwe.mitre.org/data/definitions/79.html)"
+              },
+              "properties": {
+                "cwe": [
+                  {
+                    "id": "CWE-79",
+                    "url": "https://cwe.mitre.org/data/definitions/79.html"
+                  }
+                ],
+                "severity": "MEDIUM",
+                "kind": "FAIL",
+                "tags": [
+                  "CWE-79"
+                ]
+              }
+            },
+            {
+              "id": "43ea310d-cf19-3e80-85a3-d0eb29d75765",
+              "name": "\"XSS Vulnerabilities from User-Controlled Data in Methods like `innerHTML`, `outerHTML`, or `document.write`\"",
+              "helpUri": "https://www.glog.ai/",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nCross-Site Scripting (XSS) vulnerabilities occur when an application includes untrusted data in a new web page without proper validation or escaping, or updates an existing web page with user-supplied data using a browser API that can create HTML or JavaScript. XSS allows attackers to execute scripts in the victim's browser which can hijack user sessions, deface web sites, or redirect the user to malicious sites.\n\nIn the provided JavaScript code, the `innerHTML` property is used to insert user-controlled data into the HTML document. This is a common source of XSS vulnerabilities, as it allows for the execution of arbitrary JavaScript code.\n\n## Mitigation Advice\n\nTo mitigate XSS vulnerabilities, it's recommended to:\n\n- Use the principle of least privilege. Only necessary permissions should be granted, and they should be granted for the least amount of time necessary.\n- Validate and sanitize all user inputs. Only allow known safe inputs to be processed.\n- Use secure APIs that automatically escape special characters.\n- Use Content Security Policy (CSP) to restrict the sources of scripts and other resources.\n\n## Source Code Fix Recommendation\n\nInstead of using `innerHTML`, use `textContent` or `innerText` to safely insert text from users:\n\n```javascript\nthis.__button=document.createElement(\"div\");\nthis.__button.textContent=void 0===e?\"Fire\":e;\n```\n\n## Library Dependencies\n\nThe provided code snippet does not provide enough context to determine the required library dependencies.\n\n## References\n\n- [OWASP XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)\n- [OWASP DOM based XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html)\n- [CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')](https://cwe.mitre.org/data/definitions/79.html)"
+              },
+              "properties": {
+                "cwe": [
+                  {
+                    "id": "CWE-79",
+                    "url": "https://cwe.mitre.org/data/definitions/79.html"
+                  }
+                ],
+                "severity": "MEDIUM",
+                "kind": "FAIL",
+                "tags": [
+                  "CWE-79"
+                ]
+              }
+            },
+            {
+              "id": "ba9bc9ce-d8f3-3c5d-9929-f743d7bebf8e",
+              "name": "JWT Token Vulnerability Detected",
+              "helpUri": "https://www.glog.ai/",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nThe vulnerability in question is related to the insecure storage of JSON Web Tokens (JWT) in the local storage of a web browser. JWTs are often used to store sensitive information, such as user authentication data. Storing them in local storage can expose them to Cross-Site Scripting (XSS) attacks, where an attacker can inject malicious scripts into web pages viewed by other users, to steal their tokens.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, it is recommended to store JWTs in a secure HttpOnly cookie. This prevents the token from being accessed by JavaScript running in the browser, thus protecting it from XSS attacks. \n\n## Source Code Fix Recommendation\n\nInstead of storing the JWT in local storage, you should set it as a HttpOnly cookie. Here is an example of how to do this using the `express` and `cookie-parser` libraries in Node.js:\n\n```javascript\nconst express = require('express');\nconst cookieParser = require('cookie-parser');\n\nconst app = express();\napp.use(cookieParser());\n\napp.get('/login', (req, res) => {\n  // Authenticate user and generate JWT...\n  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7fX0.bVBhvll6IaeR3aUdoOeyR8YZe2S2DfhGAxTGfd9enLw';\n  \n  res.cookie('token', token, { httpOnly: true });\n  res.send('Logged in!');\n});\n```\n\n## Library Dependencies\n\nThe code example requires the following libraries:\n\n- `express`: A web application framework for Node.js.\n- `cookie-parser`: Middleware for parsing cookies in Express apps.\n\n## References\n\n- [OWASP JWT Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_Cheat_Sheet_for_Java.html)\n- [CWE-352: Cross-Site Request Forgery (CSRF)](https://cwe.mitre.org/data/definitions/352.html)\n- [CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')](https://cwe.mitre.org/data/definitions/79.html)"
+              },
+              "properties": {
+                "cwe": [
+                  {
+                    "id": "CWE-352",
+                    "url": "https://cwe.mitre.org/data/definitions/352.html"
+                  },
+                  {
+                    "id": "CWE-79",
+                    "url": "https://cwe.mitre.org/data/definitions/79.html"
+                  }
+                ],
+                "severity": "MEDIUM",
+                "kind": "FAIL",
+                "tags": [
+                  "CWE-352",
+                  "CWE-79"
+                ]
+              }
+            },
+            {
+              "id": "25b53782-4070-3c77-9c89-180719a340f6",
+              "name": "Potential ReDoS vulnerability due to RegExp() being called with a `d` function argument. Consider using hardcoded regexes, input validation, or a regex checking/sanitization library like 'recheck'.",
+              "helpUri": "https://www.glog.ai/",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nThe code snippet provided is vulnerable to a Regular Expression Denial of Service (ReDoS) attack. This vulnerability occurs when the `RegExp()` function is called with a `d` function argument. An attacker can exploit this vulnerability by providing a specially crafted input that causes the regular expression to take a very long time to evaluate, effectively causing a denial of service.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, consider the following:\n\n1. **Hardcoded Regexes**: Instead of dynamically creating regular expressions, use hardcoded regular expressions whenever possible. This reduces the risk of an attacker being able to control the regular expression.\n\n2. **Input Validation**: Validate inputs before passing them to the `RegExp()` function. This can prevent an attacker from providing a malicious input.\n\n3. **Regex Checking/Sanitization Library**: Use a library like 'recheck' to check and sanitize regular expressions before they are used.\n\n## Source Code Fix Recommendation\n\nReplace the vulnerable line:\n\n```javascript\nreturn RegExp(\"(?:^|\\\\s+)\"+d+\"(?:\\\\s+|$)\").test(a.className)||!1\n```\n\nWith a safer alternative:\n\n```javascript\nlet safeD = d.replace(/[^a-zA-Z0-9]/g, '');\nreturn RegExp(\"(?:^|\\\\s+)\"+safeD+\"(?:\\\\s+|$)\").test(a.className)||!1\n```\n\nThis code replaces any non-alphanumeric characters in `d` with an empty string, reducing the risk of a ReDoS attack.\n\n## Library Dependencies\n\nThe code snippet does not appear to require any specific library dependencies to execute properly.\n\n## References\n\n- [OWASP ReDoS](https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS)\n- [CWE-400: Uncontrolled Resource Consumption](https://cwe.mitre.org/data/definitions/400.html)"
+              },
+              "properties": {
+                "cwe": [
+                  {
+                    "id": "CWE-400",
+                    "url": "https://cwe.mitre.org/data/definitions/400.html"
+                  }
+                ],
+                "severity": "MEDIUM",
+                "kind": "FAIL",
+                "tags": [
+                  "CWE-400"
+                ]
+              }
+            },
+            {
+              "id": "89d53b9d-9a39-3528-92bf-1b5b02bba0bf",
+              "name": "XSS Vulnerability Risk in User-Controlled Data Methods such as innerHTML, outerHTML, and document.write",
+              "helpUri": "https://www.glog.ai/",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nCross-Site Scripting (XSS) vulnerabilities occur when an application includes untrusted data in a new web page without proper validation or escaping, or updates an existing web page with user-supplied data using a browser API that can create HTML or JavaScript. XSS allows attackers to execute scripts in the victim's browser which can hijack user sessions, deface web sites, or redirect the user to malicious sites.\n\nIn the provided JavaScript code, the `dat.utils.css.inject` function is vulnerable to XSS because it uses the `innerHTML` property to add user-controlled data to the page. If an attacker can control the `e` parameter, they can inject arbitrary HTML or JavaScript code.\n\n## Mitigation Advice\n\nTo mitigate XSS vulnerabilities, you should:\n\n- Use the principle of least privilege: Only allow necessary permissions for the code that needs to run.\n- Validate input: Ensure that user-supplied data is safe before using it.\n- Escape output: Ensure that user-supplied data is properly escaped before it is included in a web page.\n- Use secure APIs: Use functions that explicitly make it clear that a string is safe and does not need to be escaped.\n\n## Source Code Fix Recommendation\n\nReplace the use of `innerHTML` with `textContent` or other safer methods. Here is the fixed code:\n\n```javascript\ndat.utils.css=function(){\n    return{\n        load:function(e,a){\n            a=a||document;\n            var b=a.createElement(\"link\");\n            b.type=\"text/css\";\n            b.rel=\"stylesheet\";\n            b.href=e;\n            a.getElementsByTagName(\"head\")[0].appendChild(b)\n        },\n        inject:function(e,a){\n            a=a||document;\n            var b=document.createElement(\"style\");\n            b.type=\"text/css\";\n            b.textContent=e; // Changed from innerHTML to textContent\n            a.getElementsByTagName(\"head\")[0].appendChild(b)\n        }\n    }\n}();\n```\n\n## Library Dependencies\n\nThe provided code does not appear to have any library dependencies.\n\n## References\n\n- [OWASP XSS (Cross Site Scripting) Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)\n- [CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')](https://cwe.mitre.org/data/definitions/79.html)"
+              },
+              "properties": {
+                "cwe": [
+                  {
+                    "id": "CWE-79",
+                    "url": "https://cwe.mitre.org/data/definitions/79.html"
+                  }
+                ],
+                "severity": "MEDIUM",
+                "kind": "FAIL",
+                "tags": [
+                  "CWE-79"
+                ]
+              }
+            },
+            {
+              "id": "5d7a8991-fe4e-3a44-be68-215ff49f30a4",
+              "name": "\"Potential XSS Vulnerability from User-Controlled Data in HTML String\"",
+              "helpUri": "https://www.glog.ai/",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nA potential Cross-Site Scripting (XSS) vulnerability can occur when user-controlled data is used in an HTML string. This can allow an attacker to inject malicious scripts into web pages viewed by other users. In the provided JavaScript code, the error message is being logged without proper sanitization or encoding, which could potentially lead to an XSS attack if the error message contains user-controlled data.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, it's important to properly sanitize and/or encode user-controlled data before using it in an HTML string. This can be done using various methods, such as HTML encoding, JavaScript encoding, or using safe functions provided by libraries.\n\n## Source Code Fix Recommendation\n\nIn the provided code, you can mitigate the potential XSS vulnerability by ensuring that the error message is properly encoded before it's logged. Here's a simple fix using the `escape-html` library:\n\n```javascript\nconst escapeHtml = require('escape-html');\n\nlogger.error(`Could not create hint: ${escapeHtml(utils.getErrorMessage(err))}`);\n```\n\n## Library Dependencies\n\nThe code example requires the following library dependencies:\n\n- `escape-html`: A library for escaping HTML entities in strings.\n\n## OWASP Resources\n\n- [OWASP XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)\n- [OWASP DOM based XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html)\n\n## Common Weakness Enumeration (CWE)\n\n- [CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')](https://cwe.mitre.org/data/definitions/79.html)"
+              },
+              "properties": {
+                "cwe": [
+                  {
+                    "id": "CWE-79",
+                    "url": "https://cwe.mitre.org/data/definitions/79.html"
+                  }
+                ],
+                "severity": "MEDIUM",
+                "kind": "FAIL",
+                "tags": [
+                  "CWE-79"
+                ]
+              }
+            },
+            {
+              "id": "ae61029c-2fef-3440-bce6-4bcafc8c4882",
+              "name": "\"XSS Vulnerabilities from User-Controlled Data in Methods like `innerHTML`, `outerHTML`, or `document.write`\"",
+              "helpUri": "https://www.glog.ai/",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nCross-Site Scripting (XSS) vulnerabilities occur when an application includes untrusted data in a new web page without proper validation or escaping, or updates an existing web page with user-supplied data using a browser API that can create HTML or JavaScript. XSS allows attackers to execute scripts in the victim's browser which can hijack user sessions, deface web sites, or redirect the user to malicious sites.\n\nIn the provided code, the vulnerability arises from the use of `innerHTML` method which is used to manipulate the content of the HTML document. This method can lead to XSS attacks if the data being passed to it is controlled by the user and not properly sanitized.\n\n## Mitigation Advice\n\nTo mitigate XSS vulnerabilities, it is recommended to:\n\n- Use frameworks that automatically escape XSS by design, such as Ruby on Rails, React JS, etc.\n- Escape untrusted HTTP request data based on the context in the HTML output (body, attribute, JavaScript, CSS, or URL) will resolve Reflected and Stored XSS vulnerabilities.\n- Apply context-sensitive encoding when modifying the browser document on the client side acts against DOM XSS.\n\n## Source Code Fix Recommendation\n\nIn the provided code, the `innerHTML` method is used. To fix this, you can use `textContent` instead of `innerHTML` when setting the text of a node. This will prevent the browser from trying to parse the input as HTML:\n\n```javascript\nr.textContent = JSON.stringify(a.getSaveObject(), void 0, 2);\n```\n\n## Library Dependencies\n\nThe code seems to be using a custom library `g` for event binding. No other library dependencies can be identified from the provided code snippet.\n\n## References\n\n- [OWASP XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)\n- [OWASP DOM based XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html)\n- [CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')](https://cwe.mitre.org/data/definitions/79.html)"
+              },
+              "properties": {
+                "cwe": [
+                  {
+                    "id": "CWE-79",
+                    "url": "https://cwe.mitre.org/data/definitions/79.html"
+                  }
+                ],
+                "severity": "MEDIUM",
+                "kind": "FAIL",
+                "tags": [
+                  "CWE-79"
+                ]
+              }
+            },
+            {
+              "id": "7e5e3253-b65b-3935-b77e-a5d7c847edb0",
+              "name": "\"XSS Vulnerabilities from User-Controlled Data in Methods like `innerHTML`, `outerHTML`, or `document.write`\"",
+              "helpUri": "https://www.glog.ai/",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nCross-Site Scripting (XSS) vulnerabilities occur when an application includes untrusted data in a new web page without proper validation or escaping, or updates an existing web page with user-supplied data using a browser API that can create HTML or JavaScript. XSS allows attackers to execute scripts in the victim's browser which can hijack user sessions, deface web sites, or redirect the user to malicious sites.\n\nIn the provided code snippet, the vulnerability arises from the use of `innerHTML` method which is used to manipulate the content of an HTML element. This method can potentially introduce XSS vulnerabilities if it's used to add user-controlled data, as it interprets the input as HTML including potentially malicious scripts.\n\n## Mitigation Advice\n\nTo mitigate XSS vulnerabilities, it's recommended to:\n\n- Use textContent instead of innerHTML when setting the textual content of an element. This will treat the input as text and not as HTML code.\n- Use element.setAttribute() for setting non-standard HTML attributes.\n- Use the browser's built-in HTML encoding functions to sanitize user input.\n- Use Content Security Policy (CSP) to mitigate the impact of any potential XSS vulnerability.\n\n## Source Code Fix Recommendation\n\nReplace the vulnerable line:\n\n```javascript\nb.__li.firstElementChild.firstElementChild.innerHTML=a;\n```\n\nWith a safer alternative:\n\n```javascript\nb.__li.firstElementChild.firstElementChild.textContent=a;\n```\n\n## Library Dependencies\n\nThe code snippet seems to be using a custom library or framework, so it's hard to determine the exact dependencies without more context. However, it seems to be using some form of GUI library (`b.__gui`) and possibly a utility library (`h.each`).\n\n## References\n\n- [OWASP XSS (Cross Site Scripting) Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)\n- [OWASP DOM based XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html)\n- [CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')](https://cwe.mitre.org/data/definitions/79.html)"
+              },
+              "properties": {
+                "cwe": [
+                  {
+                    "id": "CWE-79",
+                    "url": "https://cwe.mitre.org/data/definitions/79.html"
+                  }
+                ],
+                "severity": "MEDIUM",
+                "kind": "FAIL",
+                "tags": [
+                  "CWE-79"
+                ]
+              }
+            },
+            {
+              "id": "1561b446-b2c0-3959-a2de-8b89f7ca19d5",
+              "name": "\"Exclusion of Unreadable Files from Scans Due to High False Positive Rate\"",
+              "helpUri": "https://www.glog.ai/",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nThis vulnerability pertains to the exclusion of unreadable files from scans due to a high false positive rate. In the context of JavaScript programming, this vulnerability can occur when the application fails to properly validate or sanitize user input, leading to Cross-Site Scripting (XSS) attacks. In the provided code snippet, the application is replacing a string with a potentially malicious payload without proper sanitization or encoding, which can lead to XSS attacks.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, it is recommended to:\n\n1. Always validate and sanitize user input: Never trust user input and always validate it against a set of rules. Sanitize the input to ensure it does not contain any malicious code.\n\n2. Use Content Security Policy (CSP): CSP is a security layer that helps in mitigating XSS attacks. It restricts the sources from which scripts can be loaded, thus preventing the execution of malicious scripts.\n\n3. Use output encoding libraries: Libraries like OWASP's Java Encoder for Java or OWASP's JavaScript Sanitizer for JavaScript can be used to encode user input and prevent XSS attacks.\n\n## Source Code Fix Recommendation\n\nThe provided code snippet can be fixed by using a library like OWASP's JavaScript Sanitizer to sanitize the user input before replacing the string. Here is an example:\n\n```javascript\nvar sanitizeHTML = require('sanitize-html');\n\nvar sanitizedDescription = sanitizeHTML(description);\nsanitizedDescription = sanitizedDescription.replace('&lt;iframe width=&quot;100%&quot; height=&quot;166&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot; allow=&quot;autoplay&quot; src=&quot;https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/771984076&amp;color=%23ff5500&amp;auto_play=true&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;show_teaser=true&quot;&gt;&lt;/iframe&gt;', entities.encode(config.get('challenges.xssBonusPayload')))\n```\n\n## Library Dependencies\n\nThe code example requires the following library dependencies:\n\n- `sanitize-html`: This library is used to sanitize user input and prevent XSS attacks.\n\n## References\n\n- [OWASP XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)\n- [CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')](https://cwe.mitre.org/data/definitions/79.html)"
+              },
+              "properties": {
+                "cwe": [
+                  {
+                    "id": "CWE-79",
+                    "url": "https://cwe.mitre.org/data/definitions/79.html"
+                  }
+                ],
+                "severity": "MEDIUM",
+                "kind": "FAIL",
+                "tags": [
+                  "CWE-79"
+                ]
+              }
+            },
+            {
+              "id": "1990b58e-d694-3df2-980c-10be17547a7f",
+              "name": "Potential XSS Vulnerability from User-Controlled Data in HTML String",
+              "helpUri": "https://www.glog.ai/",
+              "help": {
+                "text": "",
+                "markdown": "## Description\n\nCross-Site Scripting (XSS) vulnerabilities occur when data enters a program from an untrusted source and is used to generate dynamic HTML content. The potential XSS vulnerability from user-controlled data in an HTML string in JavaScript arises when user-controlled data is not properly sanitized before being included in an HTML string. This can allow an attacker to inject malicious scripts into the web page, which can then be executed in the context of the victim's browser.\n\nIn the provided code snippet, the error message is being logged without any sanitization. If the error message is user-controlled, this could potentially lead to an XSS vulnerability.\n\n## Mitigation Advice\n\nTo mitigate this vulnerability, you should always sanitize user-controlled data before including it in an HTML string. This can be done by using a library that provides functions for escaping special characters in strings that are to be included in HTML.\n\n## Source Code Fix Recommendation\n\nHere is a fixed version of the code snippet:\n\n```javascript\nlogger.error(`Could not create wallet: ${utils.escapeHTML(utils.getErrorMessage(err))}`)\n```\n\nIn this version, the `escapeHTML` function is used to sanitize the error message before it is logged. This function should replace all special characters in the string with their corresponding HTML entities.\n\n## Library Dependencies\n\nThe code snippet does not appear to have any explicit library dependencies. However, the `escapeHTML` function used in the fixed version of the code could be provided by a library such as lodash or underscore.\n\n## OWASP Resources\n\n- [OWASP XSS (Cross Site Scripting) Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)\n- [OWASP DOM based XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html)\n\n## Common Weakness Enumeration (CWE)\n\n- [CWE-79: Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')](https://cwe.mitre.org/data/definitions/79.html)"
+              },
+              "properties": {
+                "cwe": [
+                  {
+                    "id": "CWE-79",
+                    "url": "https://cwe.mitre.org/data/definitions/79.html"
+                  }
+                ],
+                "severity": "MEDIUM",
+                "kind": "FAIL",
+                "tags": [
+                  "CWE-79"
+                ]
+              }
+            }
+          ],
           "language": "en-US",
           "contents": [
             "localizedData",
@@ -20,7 +344,498 @@
         }
       },
       "language": "en-US",
-      "results": [],
+      "results": [
+        {
+          "ruleId": "3f71d221-79e7-3e83-a67e-f4f0ff5c2ab9",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "JWT Token Vulnerability Detected"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "frontend/src/app/app.guard.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 38,
+                  "startColumn": 36,
+                  "endLine": 38,
+                  "endColumn": 148,
+                  "snippet": {
+                    "text": "    localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c')"
+                  }
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "glog-pfp-ruleFileLineCode/v1": "2cbd1ce27c0fd82fbc89a19c40bbea9884609fe2901edf5d138a015b69719f67",
+            "glog-pfp-ruleFileCode/v1": "5f0bcdf08a82bee31217f6fcf00af5780df95df9b2bc2b9a13e2c13ce812dd28"
+          },
+          "fingerprints": {
+            "glog-fp-ruleFileCode/v1": "5f0bcdf08a82bee31217f6fcf00af5780df95df9b2bc2b9a13e2c13ce812dd28"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "3d4f7601-d5d2-318d-a0df-b4ccc6a52725",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Insecure Cryptographic Hash Identified: MD5, SHA1 Inadequate for Security; bcrypt, scrypt, Argon2 Recommended for Passwords, SHA-256+ for Integrity Checks."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "Gruntfile.js",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 77,
+                  "startColumn": 19,
+                  "endLine": 77,
+                  "endColumn": 43,
+                  "snippet": {
+                    "text": "      const md5 = crypto.createHash('md5')"
+                  }
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "glog-pfp-ruleFileLineCode/v1": "cb81ace1933de85d657a6b2b072f920a75dddfeff7c4e75eb5fba05b54954184",
+            "glog-pfp-ruleFileCode/v1": "34419f4be87a29213c3b7f604f091d7d8f62d0e4db7868db8e5de5994d6bf0bb"
+          },
+          "fingerprints": {
+            "glog-fp-ruleFileCode/v1": "34419f4be87a29213c3b7f604f091d7d8f62d0e4db7868db8e5de5994d6bf0bb"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "f2c2347c-a7d6-31b5-ae95-d439b71af101",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Non-Literal Argument Vulnerability in Require Function"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cypress.config.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 39,
+                  "startColumn": 32,
+                  "endLine": 41,
+                  "endColumn": 15,
+                  "snippet": {
+                    "text": "          const trainingData = require(`data/chatbot/${utils.extractFilename(\n            config.get('application.chatBot.trainingData')\n          )}`)"
+                  }
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "glog-pfp-ruleFileLineCode/v1": "1ecae83b37ced4d2fb030a1f06adce75c6e2f4ad05280b483f2d5149d2383f27",
+            "glog-pfp-ruleFileCode/v1": "4a9c9254a3e096537fd9c5930691f6be574daf8a5e4cc1ee0152d5939d2aceef"
+          },
+          "fingerprints": {
+            "glog-fp-ruleFileCode/v1": "4a9c9254a3e096537fd9c5930691f6be574daf8a5e4cc1ee0152d5939d2aceef"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "5d7a8991-fe4e-3a44-be68-215ff49f30a4",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "\"Potential XSS Vulnerability from User-Controlled Data in HTML String\""
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "data/datacreator.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 122,
+                  "startColumn": 9,
+                  "endLine": 122,
+                  "endColumn": 77,
+                  "snippet": {
+                    "text": "        logger.error(`Could not create hint: ${utils.getErrorMessage(err)}`)"
+                  }
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "glog-pfp-ruleFileLineCode/v1": "ed41c18172781fa01351b0256b17941334478e7796bac99306327fb93b411d2b",
+            "glog-pfp-ruleFileCode/v1": "c20b6ebc0461380e1e950bce906c8551b2ce869709b1ff5386966aa0cfde9a22"
+          },
+          "fingerprints": {
+            "glog-fp-ruleFileCode/v1": "c20b6ebc0461380e1e950bce906c8551b2ce869709b1ff5386966aa0cfde9a22"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "abd1dfc2-16a3-37c0-97b7-13ba6df726d0",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "JWT Token Vulnerability Detected"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "frontend/src/app/last-login-ip/last-login-ip.component.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 61,
+                  "startColumn": 36,
+                  "endLine": 61,
+                  "endColumn": 120,
+                  "snippet": {
+                    "text": "    localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7Imxhc3RMb2dpbklwIjoiMS4yLjMuNCJ9fQ.RAkmdqwNypuOxv3SDjPO4xMKvd1CddKvDFYDBfUt3bg')"
+                  }
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "glog-pfp-ruleFileLineCode/v1": "7416eaed4a51e13b22c1615898fa104b559cb5fe86449bfcd45e518d79768ab4",
+            "glog-pfp-ruleFileCode/v1": "ee1ebd3ee10baf21be000f24abf9fd5656a328a4d0adfc66b6364ae97c111a89"
+          },
+          "fingerprints": {
+            "glog-fp-ruleFileCode/v1": "ee1ebd3ee10baf21be000f24abf9fd5656a328a4d0adfc66b6364ae97c111a89"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "1990b58e-d694-3df2-980c-10be17547a7f",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Potential XSS Vulnerability from User-Controlled Data in HTML String"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "data/datacreator.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 166,
+                  "startColumn": 9,
+                  "endLine": 166,
+                  "endColumn": 79,
+                  "snippet": {
+                    "text": "        logger.error(`Could not create wallet: ${utils.getErrorMessage(err)}`)"
+                  }
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "glog-pfp-ruleFileLineCode/v1": "cab92f2c84bd01165dfb339ea2a8d6a8968ed92c4d50d39c8ff1fef2788ec78d",
+            "glog-pfp-ruleFileCode/v1": "2366499d53154d307bded8f15e7231e3df4dc4d5cf1b4af8c281896637b950a9"
+          },
+          "fingerprints": {
+            "glog-fp-ruleFileCode/v1": "2366499d53154d307bded8f15e7231e3df4dc4d5cf1b4af8c281896637b950a9"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "3f47bd87-992c-36f7-b7af-2beb2913a6d6",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "\"XSS Vulnerabilities from User-Controlled Data in Methods like `innerHTML`, `outerHTML`, or `document.write`\""
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "frontend/src/assets/private/dat.gui.min.js",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 280,
+                  "endLine": 13,
+                  "endColumn": 294,
+                  "snippet": {
+                    "text": "dat.controllers.OptionController=function(e,a,b){var d=function(f,c,e){d.superclass.call(this,f,c);var k=this;this.__select=document.createElement(\"select\");if(b.isArray(e)){var l={};b.each(e,function(a){l[a]=a});e=l}b.each(e,function(a,c){var d=document.createElement(\"option\");d.innerHTML=c;d.setAttribute(\"value\",a);k.__select.appendChild(d)});this.updateDisplay();a.bind(this.__select,\"change\",function(){k.setValue(this.options[this.selectedIndex].value)});this.domElement.appendChild(this.__select)};"
+                  }
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "glog-pfp-ruleFileLineCode/v1": "77f9a72d5c48bea4611cd9e5e35fe98360a8683f0f5bf09d0d98475ccd8411a6",
+            "glog-pfp-ruleFileCode/v1": "748066892413617e8cfe0e063fe8907e3d56f2f64651a4fdbd93bd756ba2859e"
+          },
+          "fingerprints": {
+            "glog-fp-ruleFileCode/v1": "748066892413617e8cfe0e063fe8907e3d56f2f64651a4fdbd93bd756ba2859e"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "43ea310d-cf19-3e80-85a3-d0eb29d75765",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "\"XSS Vulnerabilities from User-Controlled Data in Methods like `innerHTML`, `outerHTML`, or `document.write`\""
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "frontend/src/assets/private/dat.gui.min.js",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 23,
+                  "startColumn": 157,
+                  "endLine": 23,
+                  "endColumn": 201,
+                  "snippet": {
+                    "text": "dat.controllers.FunctionController=function(e,a,b){var d=function(b,c,e){d.superclass.call(this,b,c);var k=this;this.__button=document.createElement(\"div\");this.__button.innerHTML=void 0===e?\"Fire\":e;a.bind(this.__button,\"click\",function(a){a.preventDefault();k.fire();return!1});a.addClass(this.__button,\"button\");this.domElement.appendChild(this.__button)};d.superclass=e;b.extend(d.prototype,e.prototype,{fire:function(){this.__onChange&&this.__onChange.call(this);this.__onFinishChange&&this.__onFinishChange.call(this,"
+                  }
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "glog-pfp-ruleFileLineCode/v1": "61b1274e1d3a75ef359d66e8f8d9b6dce685748f8ff4f7b2ad986cf55483589c",
+            "glog-pfp-ruleFileCode/v1": "b6771e64031db1f7d5fa2f78b4a29e0af12f290b2494dd6b1708bd196661541e"
+          },
+          "fingerprints": {
+            "glog-fp-ruleFileCode/v1": "b6771e64031db1f7d5fa2f78b4a29e0af12f290b2494dd6b1708bd196661541e"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "ba9bc9ce-d8f3-3c5d-9929-f743d7bebf8e",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "JWT Token Vulnerability Detected"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "frontend/src/app/last-login-ip/last-login-ip.component.spec.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 67,
+                  "startColumn": 36,
+                  "endLine": 67,
+                  "endColumn": 89,
+                  "snippet": {
+                    "text": "    localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7fX0.bVBhvll6IaeR3aUdoOeyR8YZe2S2DfhGAxTGfd9enLw')"
+                  }
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "glog-pfp-ruleFileLineCode/v1": "291b37e8e0d2ff3a5aa2aa2d0e715855f2215da69517badbba70892b27994e00",
+            "glog-pfp-ruleFileCode/v1": "dd6c66d15b1f2ff435af30bab92d2e32d60e3b651e450ad3799eba71b6654bd3"
+          },
+          "fingerprints": {
+            "glog-fp-ruleFileCode/v1": "dd6c66d15b1f2ff435af30bab92d2e32d60e3b651e450ad3799eba71b6654bd3"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "25b53782-4070-3c77-9c89-180719a340f6",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "Potential ReDoS vulnerability due to RegExp() being called with a `d` function argument. Consider using hardcoded regexes, input validation, or a regex checking/sanitization library like 'recheck'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "frontend/src/assets/private/dat.gui.min.js",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 11,
+                  "startColumn": 117,
+                  "endLine": 11,
+                  "endColumn": 152,
+                  "snippet": {
+                    "text": "        e&&(b.splice(e,1),a.className=b.join(\" \"))}}else a.className=void 0;return f},hasClass:function(a,d){return RegExp(\"(?:^|\\\\s+)\"+d+\"(?:\\\\s+|$)\").test(a.className)||!1},getWidth:function(c){c=getComputedStyle(c);return a(c[\"border-left-width\"])+a(c[\"border-right-width\"])+a(c[\"padding-left\"])+a(c[\"padding-right\"])+a(c.width)},getHeight:function(c){c=getComputedStyle(c);return a(c[\"border-top-width\"])+a(c[\"border-bottom-width\"])+a(c[\"padding-top\"])+a(c[\"padding-bottom\"])+a(c.height)},getOffset:function(a){var d="
+                  }
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "glog-pfp-ruleFileLineCode/v1": "9e5319583968bffddc6e3b6137d722fa1e3ba560f80c6fb50271e595413082b8",
+            "glog-pfp-ruleFileCode/v1": "e547cead80992cde0ce9d516762a3e0ddd2e0e23e76a77186e2652dcc4156432"
+          },
+          "fingerprints": {
+            "glog-fp-ruleFileCode/v1": "e547cead80992cde0ce9d516762a3e0ddd2e0e23e76a77186e2652dcc4156432"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "89d53b9d-9a39-3528-92bf-1b5b02bba0bf",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "XSS Vulnerability Risk in User-Controlled Data Methods such as innerHTML, outerHTML, and document.write"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "frontend/src/assets/private/dat.gui.min.js",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 423,
+                  "endLine": 1,
+                  "endColumn": 437,
+                  "snippet": {
+                    "text": "var dat=dat||{};dat.gui=dat.gui||{};dat.utils=dat.utils||{};dat.controllers=dat.controllers||{};dat.dom=dat.dom||{};dat.color=dat.color||{};dat.utils.css=function(){return{load:function(e,a){a=a||document;var b=a.createElement(\"link\");b.type=\"text/css\";b.rel=\"stylesheet\";b.href=e;a.getElementsByTagName(\"head\")[0].appendChild(b)},inject:function(e,a){a=a||document;var b=document.createElement(\"style\");b.type=\"text/css\";b.innerHTML=e;a.getElementsByTagName(\"head\")[0].appendChild(b)}}}();"
+                  }
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "glog-pfp-ruleFileLineCode/v1": "f9c5f6f327bda9ec851aec6a6d915b6a5dde0b7603ce7ecff8f7c43a22679a78",
+            "glog-pfp-ruleFileCode/v1": "696504f711dd0ab93863ca800f64b76d24f87147c2fc59880f751b3468fb3f6c"
+          },
+          "fingerprints": {
+            "glog-fp-ruleFileCode/v1": "696504f711dd0ab93863ca800f64b76d24f87147c2fc59880f751b3468fb3f6c"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "ae61029c-2fef-3440-bce6-4bcafc8c4882",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "\"XSS Vulnerabilities from User-Controlled Data in Methods like `innerHTML`, `outerHTML`, or `document.write`\""
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "frontend/src/assets/private/dat.gui.min.js",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 41,
+                  "startColumn": 404,
+                  "endLine": 41,
+                  "endColumn": 459,
+                  "snippet": {
+                    "text": "    localStorage.getItem(document.location.href+\".isLocal\")&&b.setAttribute(\"checked\",\"checked\");var k=function(){n.style.display=a.useLocalStorage?\"block\":\"none\"};k();g.bind(b,\"change\",function(){a.useLocalStorage=!a.useLocalStorage;k()})}var r=document.getElementById(\"dg-new-constructor\");g.bind(r,\"keydown\",function(a){!a.metaKey||67!==a.which&&67!=a.keyCode||A.hide()});g.bind(d,\"click\",function(){r.innerHTML=JSON.stringify(a.getSaveObject(),void 0,2);A.show();r.focus();r.select()});g.bind(c,\"click\","
+                  }
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "glog-pfp-ruleFileLineCode/v1": "fb2f5eb39237d4a486f8e6c3dc81e0050bf1615d643e58e61402bcc14ad8fc8d",
+            "glog-pfp-ruleFileCode/v1": "94db0e224911078ffcfb57c28f9baae35dcb02f8d90b872bb8fc29ddc6101c59"
+          },
+          "fingerprints": {
+            "glog-fp-ruleFileCode/v1": "94db0e224911078ffcfb57c28f9baae35dcb02f8d90b872bb8fc29ddc6101c59"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "7e5e3253-b65b-3935-b77e-a5d7c847edb0",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "\"XSS Vulnerabilities from User-Controlled Data in Methods like `innerHTML`, `outerHTML`, or `document.write`\""
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "frontend/src/assets/private/dat.gui.min.js",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 35,
+                  "startColumn": 75,
+                  "endLine": 35,
+                  "endColumn": 130,
+                  "snippet": {
+                    "text": "    {before:b.__li.nextElementSibling,factoryArgs:[d]})},name:function(a){b.__li.firstElementChild.firstElementChild.innerHTML=a;return b},listen:function(){b.__gui.listen(b);return b},remove:function(){b.__gui.remove(b);return b}});if(b instanceof l){var e=new k(b.object,b.property,{min:b.__min,max:b.__max,step:b.__step});h.each([\"updateDisplay\",\"onChange\",\"onFinishChange\"],function(a){var d=b[a],J=e[a];b[a]=e[a]=function(){var a=Array.prototype.slice.call(arguments);d.apply(b,a);return J.apply(e,a)}});"
+                  }
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "glog-pfp-ruleFileLineCode/v1": "e59ef778d64e4b4ca71177ba7e3cc5a552291fa35ed7a14d4cfa36d9968c43b6",
+            "glog-pfp-ruleFileCode/v1": "b5855c42936615e612f427b7331cf5a25a02bdbccb56775ab91fbcf20a9e361e"
+          },
+          "fingerprints": {
+            "glog-fp-ruleFileCode/v1": "b5855c42936615e612f427b7331cf5a25a02bdbccb56775ab91fbcf20a9e361e"
+          },
+          "properties": {}
+        },
+        {
+          "ruleId": "1561b446-b2c0-3959-a2de-8b89f7ca19d5",
+          "kind": "fail",
+          "level": "warning",
+          "message": {
+            "text": "\"Exclusion of Unreadable Files from Scans Due to High False Positive Rate\""
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "data/datacreator.ts",
+                  "uriBaseId": "%SRCROOT%"
+                },
+                "region": {
+                  "startLine": 80,
+                  "startColumn": 1,
+                  "endLine": 80,
+                  "endColumn": 504,
+                  "snippet": {
+                    "text": "      description = description.replace('&lt;iframe width=&quot;100%&quot; height=&quot;166&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot; allow=&quot;autoplay&quot; src=&quot;https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/771984076&amp;color=%23ff5500&amp;auto_play=true&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;show_teaser=true&quot;&gt;&lt;/iframe&gt;', entities.encode(config.get('challenges.xssBonusPayload')))"
+                  }
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "glog-pfp-ruleFileLineCode/v1": "06f72406ecac42afd084772d3013a386d352d1932ab1937208de36001debee93",
+            "glog-pfp-ruleFileCode/v1": "382304202c966f79db105ce326f8c5c51b7fed3f36d65bbc7ef652125352207d"
+          },
+          "fingerprints": {
+            "glog-fp-ruleFileCode/v1": "382304202c966f79db105ce326f8c5c51b7fed3f36d65bbc7ef652125352207d"
+          },
+          "properties": {}
+        }
+      ],
       "newlineSequences": [
         "\r\n",
         "\n"
